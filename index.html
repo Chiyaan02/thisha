@@ -2,21 +2,19 @@
 <html>
   <head>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <!-- A-Frame Library -->
     <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
-    <!-- MindAR Image Tracking Library -->
     <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
     <style>
-      /* Mobile responsive UI styling if needed */
-      body {
-        margin: 0;
-        overflow: hidden;
-      }
+      body { margin: 0; overflow: hidden; }
     </style>
   </head>
   <body>
-    <!-- Smoothing parameters included to reduce shake -->
-    <a-scene mindar-image="imageTargetSrc: ./targets.mind; filterMinCF: 0.0001; filterBeta: 0.001;" color-space="sRGB" renderer="colorManagement: true, physicallyCorrectLights" vr-mode-ui="enabled: false" device-orientation-permission-ui="enabled: false">
+    <a-scene 
+      mindar-image="imageTargetSrc: ./targets.mind; filterMinCF: 0.0001; filterBeta: 0.001;" 
+      color-space="sRGB" 
+      renderer="colorManagement: true, physicallyCorrectLights" 
+      vr-mode-ui="enabled: false" 
+      device-orientation-permission-ui="enabled: false">
       
       <a-assets>
         <video id="myVideo" src="thisha.mp4" preload="auto" loop="true" crossorigin="anonymous" playsinline></video>
@@ -24,9 +22,7 @@
 
       <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
 
-      <!-- Target Index 0: Video size adjusted for better aspect ratio fitting mobile screens -->
       <a-entity mindar-image-target="targetIndex: 0">
-        <!-- Width 1 matrum height 1.77 (16:9 ratio) - Ungal video-vukku ethaarpol height-ai maattikollungal -->
         <a-video src="#myVideo" width="1" height="1.77" position="0 0 0" rotation="0 0 0"></a-video>
       </a-entity>
 
@@ -35,14 +31,22 @@
     <script>
       const sceneEl = document.querySelector('a-scene');
       const video = document.querySelector('#myVideo');
-      
+
+      // MindAR Error/Ready events handle பண்ணுதல்
+      sceneEl.addEventListener("arReady", (event) => {
+        console.log("MindAR is ready");
+      });
+
+      sceneEl.addEventListener("arError", (event) => {
+        console.error("MindAR failed to start. HTTPS error or camera blocked:", event);
+        alert("Camera திறப்பதில் சிக்கல் உள்ளது. தயவுசெய்து HTTPS இணைப்பையும் பிரவுசர் கேமரா அனுமதியையும் சரிபார்க்கவும்.");
+      });
+
       sceneEl.addEventListener("targetFound", event => {
-        console.log("Target found - Playing Video");
         video.play();
       });
 
       sceneEl.addEventListener("targetLost", event => {
-        console.log("Target lost - Pausing Video");
         video.pause();
       });
     </script>
