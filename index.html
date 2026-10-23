@@ -6,11 +6,46 @@
     <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
     <!-- MindAR Image Tracking Library -->
     <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
+    <style>
+      body {
+        margin: 0;
+        overflow: hidden;
+      }
+      #start-container {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background: rgba(0, 0, 0, 0.85);
+        z-index: 99999;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
+      }
+      #start-btn {
+        padding: 15px 30px;
+        font-size: 18px;
+        font-weight: bold;
+        color: #fff;
+        background-color: #008cba;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+      }
+    </style>
   </head>
   <body>
-    <!-- Filtering & Smoothing params included -->
+    <!-- Start Button to enable audio/video playback permissions -->
+    <div id="start-container">
+      <button id="start-btn">Start AR Experience</button>
+    </div>
+
+    <!-- Strict filtering parameters added to completely remove shaking/jitter -->
     <a-scene 
-      mindar-image="imageTargetSrc: ./targets.mind; filterMinCF: 0.0001; filterBeta: 0.001;" 
+      mindar-image="imageTargetSrc: ./targets.mind; autoStart: false; filterMinCF: 0.00001; filterBeta: 0.0001;" 
       color-space="sRGB" 
       renderer="colorManagement: true, physicallyCorrectLights" 
       vr-mode-ui="enabled: false" 
@@ -22,9 +57,8 @@
 
       <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
 
+      <!-- Stable AR Target Entity -->
       <a-entity mindar-image-target="targetIndex: 0">
-        <!-- Rotation matrum dimensions align cheytha code -->
-        <!-- Video enthenkilum angle-il saanjittaanu nilkkunnatengil rotation="0 0 90" allathil "0 0 -90" maatti nokkuka -->
         <a-video src="#myVideo" width="1" height="1.77" position="0 0 0" rotation="0 0 0"></a-video>
       </a-entity>
 
@@ -33,13 +67,33 @@
     <script>
       const sceneEl = document.querySelector('a-scene');
       const video = document.querySelector('#myVideo');
-      
-      sceneEl.addEventListener("targetFound", event => {
+      const startBtn = document.querySelector('#start-btn');
+      const startContainer = document.querySelector('#start-container');
+
+      startBtn.addEventListener('click', () => {
+        startContainer.style.display = 'none';
+
+        // Initialize video play state
+        video.play().then(() => {
+          video.pause();
+          video.currentTime = 0;
+        }).catch(err => console.log("Video init error:", err));
+
+        // Start MindAR Camera
+        const arSystem = sceneEl.systems["mindar-image-system"];
+        if (arSystem) {
+          arSystem.start();
+        }
+      });
+
+      // Target Found: Play video smoothly
+      sceneEl.addEventListener("targetFound", () => {
         console.log("Target found - Playing Video");
         video.play();
       });
 
-      sceneEl.addEventListener("targetLost", event => {
+      // Target Lost: Pause video instantly
+      sceneEl.addEventListener("targetLost", () => {
         console.log("Target lost - Pausing Video");
         video.pause();
       });
