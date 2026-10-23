@@ -8,7 +8,8 @@
     <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
   </head>
   <body>
-    <a-scene mindar-image="imageTargetSrc: ./targets.mind;" color-space="sRGB" renderer="colorManagement: true, physicallyCorrectLights" vr-mode-ui="enabled: false" device-orientation-permission-ui="enabled: false">
+    <!-- Smoothing Parameters Added Below -->
+    <a-scene mindar-image="imageTargetSrc: ./targets.mind; filterMinCF: 0.0001; filterBeta: 0.001;" color-space="sRGB" renderer="colorManagement: true, physicallyCorrectLights" vr-mode-ui="enabled: false" device-orientation-permission-ui="enabled: false">
       
       <a-assets>
         <video id="myVideo" src="thisha.mp4" preload="auto" loop="true" crossorigin="anonymous" playsinline></video>
@@ -23,7 +24,6 @@
     </a-scene>
 
     <script>
-      // Target Found / Lost Handler for Video Auto Play/Pause
       const sceneEl = document.querySelector('a-scene');
       const video = document.querySelector('#myVideo');
       
