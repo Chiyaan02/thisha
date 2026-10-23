@@ -1,55 +1,15 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <!-- A-Frame Library -->
     <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
     <!-- MindAR Image Tracking Library -->
     <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
-    <style>
-      body {
-        margin: 0;
-        overflow: hidden;
-      }
-      /* AR Start Overlay Button */
-      #start-container {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100vw;
-        height: 100vh;
-        background: rgba(0, 0, 0, 0.8);
-        z-index: 99999;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        flex-direction: column;
-      }
-      #start-btn {
-        padding: 15px 30px;
-        font-size: 18px;
-        font-weight: bold;
-        color: #fff;
-        background-color: #008cba;
-        border: none;
-        border-radius: 8px;
-        cursor: pointer;
-        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
-      }
-    </style>
   </head>
   <body>
-    <!-- Start UI to handle Browser Autoplay & Camera Permission Policies -->
-    <div id="start-container">
-      <button id="start-btn">Start AR Experience</button>
-    </div>
-
-    <a-scene 
-      mindar-image="imageTargetSrc: ./targets.mind; autoStart: false; filterMinCF: 0.0001; filterBeta: 0.001;" 
-      color-space="sRGB" 
-      renderer="colorManagement: true, physicallyCorrectLights" 
-      vr-mode-ui="enabled: false" 
-      device-orientation-permission-ui="enabled: false">
+    <!-- Smoothing Parameters Added Below -->
+    <a-scene mindar-image="imageTargetSrc: ./targets.mind; filterMinCF: 0.0001; filterBeta: 0.001;" color-space="sRGB" renderer="colorManagement: true, physicallyCorrectLights" vr-mode-ui="enabled: false" device-orientation-permission-ui="enabled: false">
       
       <a-assets>
         <video id="myVideo" src="thisha.mp4" preload="auto" loop="true" crossorigin="anonymous" playsinline></video>
@@ -58,8 +18,7 @@
       <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
 
       <a-entity mindar-image-target="targetIndex: 0">
-        <!-- Width 1, Height 1.77 for 16:9 mobile vertical video -->
-        <a-video src="#myVideo" width="1" height="1.77" position="0 0 0" rotation="0 0 0"></a-video>
+        <a-video src="#myVideo" width="1" height="2" position="0 0 0" rotation="0 0 0"></a-video>
       </a-entity>
 
     </a-scene>
@@ -67,32 +26,13 @@
     <script>
       const sceneEl = document.querySelector('a-scene');
       const video = document.querySelector('#myVideo');
-      const startBtn = document.querySelector('#start-btn');
-      const startContainer = document.querySelector('#start-container');
-
-      startBtn.addEventListener('click', () => {
-        // Hide Start Screen
-        startContainer.style.display = 'none';
-
-        // Pre-load / play video briefly to fulfill browser user interaction requirement
-        video.play().then(() => {
-          video.pause();
-        }).catch(err => console.log("Video prep error:", err));
-
-        // Start MindAR Camera Engine
-        const arSystem = sceneEl.systems["mindar-image-system"];
-        if (arSystem) {
-          arSystem.start();
-        }
-      });
-
-      // Target Found/Lost Listeners
-      sceneEl.addEventListener("targetFound", () => {
+      
+      sceneEl.addEventListener("targetFound", event => {
         console.log("Target found - Playing Video");
         video.play();
       });
 
-      sceneEl.addEventListener("targetLost", () => {
+      sceneEl.addEventListener("targetLost", event => {
         console.log("Target lost - Pausing Video");
         video.pause();
       });
